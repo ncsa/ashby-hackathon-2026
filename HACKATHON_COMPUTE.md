@@ -155,7 +155,7 @@ unset PYTHONNOUSERSITE   # needed after every module load, or --user packages ar
 pip install --user "open_clip_torch>=2.24"
 # only if you'll run CONCH or MUSK yourself:
 pip install --user git+https://github.com/mahmoodlab/CONCH.git
-pip install --user git+https://github.com/lilab-stanford/MUSK.git
+pip install --user git+https://github.com/lilab-stanford/MUSK.git fairscale
 ```
 
 Put `unset PYTHONNOUSERSITE` right after `module load pytorch-conda/2.8` in

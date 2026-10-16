@@ -36,7 +36,7 @@ def load_conch(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
         from conch.open_clip_custom import create_model_from_pretrained, get_tokenizer, tokenize
     except ImportError as e:
         raise ImportError(
-            f"CONCH is not installed. Run: pip install git+{CONCH_REPO}.git"
+            f"Could not import CONCH ({e}). Install it with: pip install git+{CONCH_REPO}.git"
         ) from e
 
     hf_token = hf_token or os.environ.get("HF_TOKEN")
@@ -72,7 +72,8 @@ def load_conch(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
 
 def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     """Load MUSK. Requires accepted access to huggingface.co/xiangjx/musk and
-    `pip install git+https://github.com/lilab-stanford/MUSK.git`.
+    `pip install git+https://github.com/lilab-stanford/MUSK.git fairscale`
+    (MUSK's modeling code imports fairscale, which its installer doesn't pull in).
     """
     try:
         import musk
@@ -84,7 +85,8 @@ def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
         from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
     except ImportError as e:
         raise ImportError(
-            f"MUSK is not installed. Run: pip install git+{MUSK_REPO}.git"
+            f"Could not import MUSK or a dependency ({e}). Install with: "
+            f"pip install git+{MUSK_REPO}.git fairscale"
         ) from e
 
     hf_token = hf_token or os.environ.get("HF_TOKEN")

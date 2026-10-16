@@ -144,6 +144,35 @@ class TestLoadOpenClipHub(unittest.TestCase):
         self.assertIn("no such repo", str(ctx.exception))
 
 
+class TestBespokeAdapterImportErrors(unittest.TestCase):
+    """A missing dependency must surface its own name, not just "not installed".
+
+    On Delta, MUSK imported fine but its modeling code needed fairscale; the old
+    message said "MUSK is not installed", which sent us reinstalling MUSK.
+    """
+
+    def test_musk_dependency_failure_names_the_cause_and_fairscale(self):
+        import types
+
+        musk_pkg = types.ModuleType("musk")
+        musk_pkg.__path__ = []  # a package, so `from musk import modeling` looks up the submodule
+        musk_pkg.utils = mock.MagicMock()
+        stubs = {"musk": musk_pkg, "musk.utils": musk_pkg.utils, "timm": mock.MagicMock(), "musk.modeling": None}
+        with mock.patch.dict(sys.modules, stubs):
+            with self.assertRaises(ImportError) as ctx:
+                models.load_musk(device="cpu")
+        msg = str(ctx.exception)
+        self.assertIn("musk.modeling", msg)  # the underlying import that failed
+        self.assertIn("fairscale", msg)  # the install hint covers the usual culprit
+
+    def test_conch_import_failure_includes_cause(self):
+        with mock.patch.dict(sys.modules, {"conch": None, "conch.open_clip_custom": None}):
+            with self.assertRaises(ImportError) as ctx:
+                models.load_conch(device="cpu")
+        self.assertIn("conch", str(ctx.exception))
+        self.assertIn("pip install git+", str(ctx.exception))
+
+
 class TestLoadHfClip(unittest.TestCase):
     def test_loads_via_clip_model_and_processor(self):
         fake_transformers = _fake_transformers()
