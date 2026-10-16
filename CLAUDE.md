@@ -129,6 +129,12 @@ are lightweight/network-only and are fine on the login node.
 
 ## Day-of: staging a model
 
+For the event itself, `./stage_event_models.sh submit` submits all four
+servers to `sup-30434` (and turns off their resubmit chains). It's safe to
+run the night before: jobs pend until 07:30. `./stage_event_models.sh status`
+prints one block of endpoints and keys to post in #compute-issues. The manual
+steps below are what it does for one model.
+
 ```bash
 touch ~/.pathology/serve/STOP_CHAIN-conch   # single window, no resubmit
 sbatch --account=bfqi-delta-gpu --partition=gpuA40x4 --reservation=sup-30434 \
