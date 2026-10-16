@@ -240,8 +240,12 @@ curl https://lumen.ncsa.illinois.edu/v1/models \
 ```
 
 Model IDs available as of Oct 16 include `qwen3-coder-next`, `glm-5.3`,
-`gemma-4-31b-it` and `nemotron-3-super-120b-a12b`; the call above has the
-current list.
+`gemma-4-31b-it`, `nemotron-3-super-120b-a12b` and `ornith-1.0-35b`; the call
+above has the current list. **Costs differ about 40× between models**: as of
+Oct 16, `ornith-1.0-35b` was cheapest, `qwen3-coder-next` and `gemma-4-31b-it`
+cheap, and `glm-5.3` by far the most expensive. Your 10 coins go much further
+on the cheap ones, especially for coding agents, which resend the whole
+conversation at every step.
 
 **From Python** (`pip install openai`):
 
@@ -277,6 +281,37 @@ hpc-gpt          # run in your project folder
 
 It starts in a Delta-support mode using `lumen/qwen3.8-27b`. Switch models
 with `/models`; `opencode models` lists them.
+
+**Choosing a model in hpc-gpt:**
+
+| Use | Model | Why |
+|---|---|---|
+| Everyday questions, Delta/Slurm help | `lumen/qwen3.8-27b` (default) | Good all-rounder |
+| Writing and editing code | `lumen/qwen3-coder-next` | Tuned for code, 131k context, cheap |
+| Long or simple tasks on a budget | `lumen/ornith-1.0-35b` | Cheapest by far |
+| A hard problem the others can't crack | `lumen/glm-5.3` | Strongest, but about 5–20× the cost; switch back afterwards |
+
+Skip `lumen/gemma-4-31b`, `lumen/nemotron-3-super-120b` and `lumen/qwen3.6-35b`
+in the hpc-gpt list. Their names don't match Lumen's current model IDs, so
+they're likely to fail. If `ncsahosted/...` doesn't respond, use a `lumen/`
+model.
+
+**Tips:**
+
+- **hpc-gpt runs on one Lumen budget shared by every Delta user.** Long agent
+  sessions use a lot of tokens, because each step resends the conversation.
+  Start a fresh session (`/new`) when you switch tasks, and point the agent at
+  specific files rather than your whole dataset.
+- **Pick the right mode.** The default `support` mode can edit files and run
+  commands. The `debug` and `learning` modes ask before editing or running
+  anything, which is a better fit if you're new to Delta.
+- **Don't let the agent submit GPU jobs unattended**, and never let it set up
+  scripts that resubmit jobs in a loop. Every GPU job counts against your
+  10-hour budget. Read any `sbatch`/`srun` command before approving it.
+- **Never paste passwords, API keys or tokens** into a chat. Anything you
+  paste is sent to the model.
+- Agents make confident mistakes. Run their code on a few tiles first, and
+  check numbers against something you trust.
 
 **On your laptop**, install opencode (`curl -fsSL https://opencode.ai/install | bash`)
 and point it at Lumen with your own key (section 7). Create
