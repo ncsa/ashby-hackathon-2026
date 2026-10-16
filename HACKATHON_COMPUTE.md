@@ -138,6 +138,9 @@ Rules:
   this weekend means days. If you leave a job running Saturday night, make sure
   it finishes by 7:59am Sunday.
 - **Nothing heavy on the login node.**
+- The `*-interactive` partitions (e.g. `cpu-interactive` for OnDemand)
+  allow **one job per person at a time** and up to 1 hour each. A second
+  request is rejected with `QOSMaxSubmitJobPerUserLimit`; end the first one.
 - `squeue -u $USER` lists your jobs, and `scancel <jobid>` ends one. End idle
   Jupyter or interactive sessions; they keep holding a GPU.
 - After Sun 6:00pm there are no reserved nodes, and GPU jobs go through the
