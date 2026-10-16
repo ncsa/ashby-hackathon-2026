@@ -58,14 +58,14 @@ If either account is missing, post in #compute-issues.
 
 | Where | Use it for |
 |---|---|
-| `/u/<username>` (home, 100 GB) | Code, environments, small files |
-| `/projects/bfqi/<username>` | Your data and outputs |
-| `/projects/bfqi/teams/<team>` | Files your team shares, e.g. embeddings computed once and reused. Create it with `mkdir -p /projects/bfqi/teams/<team>` |
-| `/projects/bfqi/shared/` | Read-only datasets |
+| `/u/<username>` (home, **100 GB each**) | Your code, environments, embeddings and results: **start here** |
+| `/projects/bfqi/shared/datasets/` | Read-only datasets |
+| `/projects/bfqi/teams/<team>` | Small files your team shares. Create it with `mkdir -p /projects/bfqi/teams/<team>` |
 
-Avoid `/work` this weekend: `/work/hdd` is having filesystem problems. If a
-write fails with `Disk quota exceeded`, use your home directory and tell us in
-#compute-issues.
+The hackathon's project space (`/projects/bfqi`) is nearly full until NCSA
+expands it, so keep big outputs in your home directory. Avoid `/work` this
+weekend: `/work/hdd` is having filesystem problems. If a write fails with
+`Disk quota exceeded`, tell us in #compute-issues.
 
 Everyone in the hackathon can read `/projects/bfqi`, so don't put anything
 private there.
@@ -77,12 +77,13 @@ Read these in place; don't copy them.
 ```
 /projects/bfqi/shared/datasets/
     NCT-CRC-HE-100K/data-samples/   # CRC: 100k .tif tiles, one folder per class (9)
-    quilt/                          # Quilt-1M: .jpg images + quilt_1M_lookup CSV of captions
     pathgen_dataset/                # PathGen-1.6M: JSON captions + a 2k-slide sample
     pathmmu/                        # PathMMU: ARCH, BACH, MHIST, NCT-CRC, Osteo folders
 ```
 
-These are already tiles and captions, so no slide preprocessing is needed. If
+These are already tiles and captions, so no slide preprocessing is needed.
+**Quilt-1M** will be added once NCSA expands the project's storage; watch
+#compute-issues. If
 the path changes, it'll be posted in #compute-issues.
 
 ## 4. Pathology models
