@@ -150,10 +150,13 @@ srun --account=bfqi-delta-gpu --partition=gpuA100x4 --gpus-per-node=1 \
 Rules:
 
 - **One GPU per team at a time.**
-- **Each person has a budget of about 5 A100 GPU-hours** for the event. Slurm
-  won't start a job if GPUs × `--time` would go over what's left; the job waits
-  with reason `QOSGrpBillingMinutes`. You're charged only for time actually
-  used, so ask for a realistic `--time`. Need more? Ask in #compute-issues.
+- **Each person has a budget of 10 GPU-hours** on `gpuA100x4` for the event.
+  Slurm won't start a job if it would go over what's left; the job waits with
+  reason `QOSGrpBillingMinutes`. You're charged only for time actually used,
+  so ask for a realistic `--time`. Two things use the budget faster: asking
+  for more than 16 CPUs or about 62 GB of memory per GPU (you're billed for
+  whichever is largest), and the `*-interactive` partitions, which cost double.
+  Need more? Ask in #compute-issues.
 - **Keep jobs to an hour or two.** The reserved nodes run Sat 7:30am to
   Sun 6:00pm, in two blocks: **Sat 7:30am – Sun 7:59am** and
   **Sun 8:00am – 6:00pm**. A job whose time limit crosses Sun 8:00am or
@@ -327,7 +330,7 @@ model.
   anything, which is a better fit if you're new to Delta.
 - **Don't let the agent submit GPU jobs unattended**, and never let it set up
   scripts that resubmit jobs in a loop. Every GPU job counts against your
-  ~5 GPU-hour budget. Read any `sbatch`/`srun` command before approving it.
+  10 GPU-hour budget. Read any `sbatch`/`srun` command before approving it.
 - **Never paste passwords, API keys or tokens** into a chat. Anything you
   paste is sent to the model.
 - Agents make confident mistakes. Run their code on a few tiles first, and
