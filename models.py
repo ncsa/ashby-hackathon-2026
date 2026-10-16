@@ -107,8 +107,8 @@ def _musk_weights_path(hf_token: Optional[str] = None) -> str:
 
 def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     """Load MUSK. Requires accepted access to huggingface.co/xiangjx/musk and
-    `pip install git+https://github.com/lilab-stanford/MUSK.git fairscale`
-    (MUSK's modeling code imports fairscale, which its installer doesn't pull in).
+    `pip install git+https://github.com/lilab-stanford/MUSK.git fairscale sentencepiece`
+    (MUSK needs fairscale and sentencepiece, which its installer doesn't pull in).
     """
     try:
         import musk

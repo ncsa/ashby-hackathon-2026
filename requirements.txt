@@ -5,7 +5,7 @@
 # GitHub repos, not PyPI — see README.md for the current install command for
 # each:
 #   pip install git+https://github.com/mahmoodlab/CONCH.git
-#   pip install git+https://github.com/lilab-stanford/MUSK.git fairscale   # MUSK needs fairscale
+#   pip install git+https://github.com/lilab-stanford/MUSK.git fairscale sentencepiece   # MUSK needs fairscale
 torch>=2.2
 torchvision>=0.17
 timm>=1.0
