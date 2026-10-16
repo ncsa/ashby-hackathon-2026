@@ -267,15 +267,20 @@ Profile page and make a new one. Deleting it takes effect immediately.
 ## 8. Agentic coding with opencode
 
 [opencode](https://opencode.ai) is an open-source coding agent for the
-terminal. Pointed at Lumen, it runs on university-hosted models at no cost to
-you. Install it in your home directory on Delta, so the agent works next to
-your data and jobs (or on your laptop):
+terminal. **On Delta it's already installed** as NCSA's HPC-GPT module, set
+up to use Lumen models with no API key of your own:
 
 ```bash
-curl -fsSL https://opencode.ai/install | bash
+module load hpc-gpt
+hpc-gpt          # run in your project folder
 ```
 
-Then create `~/.config/opencode/opencode.json`:
+It starts in a Delta-support mode using `lumen/qwen3.8-27b`. Switch models
+with `/models`; `opencode models` lists them.
+
+**On your laptop**, install opencode (`curl -fsSL https://opencode.ai/install | bash`)
+and point it at Lumen with your own key (section 7). Create
+`~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -299,8 +304,6 @@ Then create `~/.config/opencode/opencode.json`:
 ```
 
 With `LUMEN_API_KEY` exported, run `opencode` in your project folder.
-`opencode models` should list the Lumen models. Add more from `/v1/models` in
-the same format.
 
 Read what the agent writes before you run it, especially anything that
 submits GPU jobs.
