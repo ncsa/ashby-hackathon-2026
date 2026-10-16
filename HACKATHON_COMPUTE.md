@@ -61,10 +61,13 @@ Rules of thumb:
 
 - **One GPU per team at a time** unless a TA says otherwise. There are 16
   GPUs for the whole event.
-- **Keep `--time` short** (an hour or two) and make sure your job ends before
-  5:00pm Saturday / 8:00am Sunday / 6:00pm Sunday. A job whose time limit runs
-  past the end of the reservation won't be placed on the reserved nodes; it
-  will sit in the general Delta queue instead.
+- **Keep `--time` short** (an hour or two). The reserved nodes run from Sat
+  7:30am to Sun 6:00pm, including overnight, but a job must fit in one of two
+  blocks: **Sat 7:30am – Sun 7:59am** and **Sun 8:00am – 6:00pm**. A job whose
+  time limit crosses Sun 8:00am or 6:00pm won't go on the reserved nodes and
+  will wait in the regular Delta queue (which can mean days). This mostly
+  matters for jobs you leave running overnight on Saturday: make sure they
+  finish by 7:59am Sunday.
 - **Never run training or inference on the login node** — that's what `srun`
   is for. `pip install`, editing, and sending HTTP requests are fine there.
 - `squeue -u $USER` shows your jobs; `scancel <jobid>` ends one. Cancel idle
