@@ -102,7 +102,8 @@ That also applies to using them through the hosted servers.
    <https://huggingface.co/xiangjx/musk>. Use your .edu email; approval is
    usually fast.
 2. Create a Hugging Face token (Settings → Access Tokens), then on Delta run
-   `huggingface-cli login` and paste it.
+   `module load pytorch-conda/2.8` and `hf auth login`, and paste it. Without
+   the module, the command isn't found.
 3. The weights download to your home directory the first time you use them.
 
 **Two ways to use the models:**
