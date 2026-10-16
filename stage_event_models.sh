@@ -20,6 +20,12 @@ SERVE_DIR="${SERVE_DIR:-$HOME/.pathology/serve}"
 # name=spec, one per server
 MODELS="${MODELS:-conch=conch musk=musk quiltnet=openclip:wisdomik/QuiltNet-B-32 plip=hfclip:vinid/plip}"
 
+# Load weights from the cache the smoke test used, offline: no surprise
+# downloads at 07:30, and no dependence on HF_HOME from the submitting shell
+# (sbatch exports the caller's environment to the job).
+export HF_HOME="${EVENT_HF_HOME:-$HOME/.cache/huggingface}"
+export HF_HUB_OFFLINE=1
+
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"   # run from anywhere; submit_serve.sbatch and logs/ live here
 

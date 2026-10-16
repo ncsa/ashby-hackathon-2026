@@ -21,7 +21,11 @@ class TestStageEventModels(unittest.TestCase):
         os.makedirs(self.bin)
         fake = os.path.join(self.bin, "sbatch")
         with open(fake, "w") as f:
-            f.write(f'#!/bin/bash\necho "$*" >> {self.calls}\necho "Submitted batch job 1"\n')
+            f.write(
+                f'#!/bin/bash\necho "$*" >> {self.calls}\n'
+                f'echo "HF_HOME=$HF_HOME HF_HUB_OFFLINE=$HF_HUB_OFFLINE" >> {self.calls}.env\n'
+                'echo "Submitted batch job 1"\n'
+            )
         os.chmod(fake, os.stat(fake).st_mode | stat.S_IEXEC)
 
     def _run(self, *args):
@@ -49,6 +53,14 @@ class TestStageEventModels(unittest.TestCase):
         self._run("submit")
         for name in ("conch", "musk", "quiltnet", "plip"):
             self.assertTrue(os.path.exists(os.path.join(self.serve, f"STOP_CHAIN-{name}")), name)
+
+    def test_jobs_get_tested_cache_offline_regardless_of_caller_hf_home(self):
+        env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}", SERVE_DIR=self.serve,
+                   HF_HOME="/work/nvme/elsewhere", HOME=self.tmp.name)
+        subprocess.run(["bash", SCRIPT, "submit"], env=env, check=True, capture_output=True)
+        with open(self.calls + ".env") as f:
+            lines = set(f.read().splitlines())
+        self.assertEqual(lines, {f"HF_HOME={self.tmp.name}/.cache/huggingface HF_HUB_OFFLINE=1"})
 
     def test_dry_run_submits_nothing(self):
         result = self._run("--dry-run", "submit")
