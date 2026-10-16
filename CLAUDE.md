@@ -119,6 +119,15 @@ faster — probably eliminating the downtime gap — at the cost of the host
 no longer being guaranteed stable across a resubmission. Worth deciding
 before the event, not during it.
 
+## Load test, 2026-10-16 (CONCH, one A40, called from the login node)
+
+60 teams x 3 images: 0 errors, p50 3.2s, p95 3.9s. 60 teams x 20 images
+(1,200 images): 0 errors, p50 11.9s, p95 18.3s. That's about 65 images/s.
+GPU memory was 4.1 of 46 GB. The limit is per-image preprocessing in the
+single uvicorn event loop (serve.py `adapter.preprocess` in the handler), not
+the GPU or batch size, so default PATHOLOGY_MAX_BATCH_SIZE/MAX_WAIT_MS are
+kept. If it's ever needed, moving preprocessing to a thread pool is the fix.
+
 ## Never run this on the login node
 
 Same rule as README.md, worth repeating here since it's the mistake most

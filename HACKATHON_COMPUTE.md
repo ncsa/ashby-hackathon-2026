@@ -112,7 +112,10 @@ That also applies to using them through the hosted servers.
   one endpoint each, on a reserved A40 node. Host, port and API key are posted
   in #compute-issues. Call them from **inside Delta** (login node, OnDemand,
   or a job), not from your laptop. See [`STUDENT_GUIDE.md`](STUDENT_GUIDE.md).
-  The servers run until **Sun 6:00pm**.
+  The servers run until **Sun 6:00pm**. Each one handles about 60 images per
+  second, shared by everyone: use it for up to a few thousand tiles at a time.
+  To embed a whole dataset (tens of thousands of tiles), run your own GPU job
+  (section 6) so you don't block other teams.
 - **Your own GPU job.** Load the model yourself, as in section 6.
 
 ## 5. GPU jobs
