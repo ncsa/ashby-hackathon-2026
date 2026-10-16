@@ -211,6 +211,50 @@ class TestMuskWeightsPath(unittest.TestCase):
         self.assertNotIn("force_download", kwargs)
 
 
+class TestMuskEncoders(unittest.TestCase):
+    """Encoders must use the retrieval head on both sides, one string per tokenize call."""
+
+    def _load(self):
+        import types
+
+        musk_pkg = types.ModuleType("musk")
+        musk_pkg.__path__ = []
+        musk_pkg.__file__ = "/nonexistent/musk/__init__.py"
+        musk_utils = mock.MagicMock()
+        musk_utils.xlm_tokenizer.side_effect = lambda text, tok, max_len: ([1, 2], [0, 0])
+        musk_pkg.utils = musk_utils
+        model = mock.MagicMock(name="musk_model")
+        model.to.return_value.eval.return_value = model
+        timm = mock.MagicMock()
+        timm.create_model.return_value = model
+        stubs = {
+            "musk": musk_pkg, "musk.utils": musk_utils, "musk.modeling": mock.MagicMock(),
+            "timm": timm, "timm.data": mock.MagicMock(), "timm.data.constants": mock.MagicMock(),
+            "transformers": mock.MagicMock(), "torchvision": mock.MagicMock(),
+        }
+        with mock.patch.dict(sys.modules, stubs), \
+                mock.patch.object(models, "_musk_tokenizer_path", return_value="/t.spm"), \
+                mock.patch.object(models, "_musk_weights_path", return_value="/w.safetensors"):
+            adapter = models.load_musk(device="cpu")
+        return adapter, model, musk_utils
+
+    def test_text_tokenized_one_string_at_a_time_with_retrieval_head(self):
+        adapter, model, musk_utils = self._load()
+        adapter.encode_texts(["tumor", "stroma"])
+        self.assertEqual([c.args[0] for c in musk_utils.xlm_tokenizer.call_args_list], ["tumor", "stroma"])
+        kwargs = model.call_args.kwargs
+        self.assertTrue(kwargs["with_head"])
+        self.assertTrue(kwargs["out_norm"])
+
+    def test_images_use_same_head_as_text(self):
+        adapter, model, _ = self._load()
+        adapter.encode_images(mock.MagicMock())
+        kwargs = model.call_args.kwargs
+        self.assertTrue(kwargs["with_head"])
+        self.assertTrue(kwargs["out_norm"])
+        self.assertFalse(kwargs["ms_aug"])
+
+
 class TestLoadHfClip(unittest.TestCase):
     def test_loads_via_clip_model_and_processor(self):
         fake_transformers = _fake_transformers()

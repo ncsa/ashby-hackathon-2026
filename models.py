@@ -153,21 +153,29 @@ def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
         transforms.Normalize(mean=IMAGENET_INCEPTION_MEAN, std=IMAGENET_INCEPTION_STD),
     ])
 
+    # Images and text both go through the retrieval head (with_head=True,
+    # out_norm=True), as in MUSK's zero-shot classification/retrieval
+    # benchmarks: /classify compares the two directly, so they must share one
+    # space. (The model card's ms_aug=True image settings are for linear probes
+    # and give 2048-d unnormalized features that don't match the text side.)
     @torch.no_grad()
     def encode_images(batch: torch.Tensor) -> np.ndarray:
-        emb, _ = model(
+        emb = model(
             image=batch.to(device=device, dtype=dtype),
-            with_head=False, out_norm=False, ms_aug=True, return_global=True,
-        )
+            with_head=True, out_norm=True, ms_aug=False, return_global=True,
+        )[0]
         return emb.float().cpu().numpy()
 
     @torch.no_grad()
     def encode_texts(texts: List[str]) -> np.ndarray:
-        ids, padding_mask = musk_utils.xlm_tokenizer(texts, tokenizer, max_len=100)
-        _, emb = model(
-            text_description=ids.to(device), padding_mask=padding_mask.to(device),
-            with_head=False, out_norm=True, ms_aug=False, return_global=True,
-        )
+        # musk_utils.xlm_tokenizer handles one string and returns plain lists.
+        tokenized = [musk_utils.xlm_tokenizer(t, tokenizer, max_len=100) for t in texts]
+        ids = torch.tensor([ids for ids, _ in tokenized], device=device)
+        padding_mask = torch.tensor([pad for _, pad in tokenized], device=device)
+        emb = model(
+            text_description=ids, padding_mask=padding_mask,
+            with_head=True, out_norm=True, ms_aug=False, return_global=True,
+        )[1]
         return emb.float().cpu().numpy()
 
     return Adapter(name="musk", preprocess=preprocess, encode_images=encode_images, encode_texts=encode_texts)
