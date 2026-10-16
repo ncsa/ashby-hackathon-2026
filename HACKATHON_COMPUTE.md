@@ -119,6 +119,21 @@ That also applies to using them through the hosted servers.
   (section 6) so you don't block other teams.
 - **Your own GPU job.** Load the model yourself, as in section 6.
 
+### Bringing your own models, data or tools
+
+You're free to use any model, dataset or tool, as long as you follow its
+terms:
+
+- **Licences:** many pathology models (CONCH, MUSK, UNI, TITAN, …) are gated
+  and non-commercial. Each person requests their own access, and copies of the
+  weights can't be shared.
+- **Patient data:** use public, de-identified data (TCGA open access, the
+  shared datasets, published sets). Controlled-access data needs your own
+  approval, and patient data must never be pasted into LLM chats or APIs.
+- **Size:** downloads go in your home directory (100 GB). Ask in
+  #compute-issues before pulling anything over ~50 GB.
+- **Credit:** cite every model, dataset and tool in your final presentation.
+
 ## 5. GPU jobs
 
 The reserved A100 nodes are on `bfqi-delta-gpu`, partition `gpuA100x4`. You
