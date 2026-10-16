@@ -18,13 +18,21 @@ it.
 
 ## 0. What you'll get from the organizers
 
-Three things, usually from a shared doc or `connection.json`:
+Four servers run on a reserved A40 node until Sun 6:00pm, one per model:
+CONCH, MUSK, QuiltNet-B-32 and PLIP. For each one, #compute-issues on Slack
+has:
 
-- **ENDPOINT** — a URL like `http://gpub042:8000`
-- **API_KEY** — a token you pass as a bearer token
-- **Which model** is running (e.g. CONCH, MUSK, QuiltNet, plain CLIP) — this
-  matters for what labels/prompts make sense, not for how you call the API;
-  the HTTP interface is identical no matter which model is staged.
+- **ENDPOINT**: a URL like `http://gpub080:8001`
+- **API_KEY**: a token you pass as a bearer token
+
+All four servers have the same HTTP API, so the only differences are which
+labels and prompts make sense and how good the embeddings are. Embeddings
+from different models aren't comparable, so stick with one model per
+experiment.
+
+**CONCH and MUSK: get your own Hugging Face access before using their
+servers.** Their licenses require each user to accept the terms individually
+(see `HACKATHON_COMPUTE.md` §4). QuiltNet and PLIP are open.
 
 ## 1. Install
 

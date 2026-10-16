@@ -14,6 +14,7 @@ transformers>=4.40
 open_clip_torch>=2.24
 Pillow>=10.0
 pandas>=2.0
+scikit-learn>=1.3   # train_probe.py
 tqdm>=4.66
 fastapi>=0.110
 uvicorn>=0.29

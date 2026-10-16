@@ -10,6 +10,8 @@ Computational Science Hackathon (Oct 17-18, 2026).
   rules, storage, and LLM access through Lumen.
 - [`STUDENT_GUIDE.md`](STUDENT_GUIDE.md) — calling the hosted pathology
   embedding servers (`/embed`, `/classify`).
+- `train_probe.py`: train a logistic-regression classifier on an embeddings
+  CSV (see `HACKATHON_COMPUTE.md` §6).
 
 The rest of this README is for organizers setting up the servers.
 `CLAUDE.md` is the TA runbook.

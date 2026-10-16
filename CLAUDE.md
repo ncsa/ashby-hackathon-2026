@@ -9,14 +9,25 @@ branch on 2026-10-16, history preserved). Run the tests with
 
 ## The plan this exists for
 
-~15 teams total. Organizer (Charles) is offering ~12 of them a quick-start
-path: at least two pathology/text CLIP models plus the Illinois Chat-hosted
-open-weight LLMs (separate from this directory). A few teams will bring their
-own tooling from the start — that's expected and fine, they don't need
-anything here. The design goal, stated by the organizer, is staging models
-cheaply enough not to waste Vlad's GPU allocation across ~10-12 teams at
-once — that's why this is one persistent micro-batching server per model
-(`serve.py`), not one SLURM job per team.
+About 180 students in about 60 teams (up from the ~15 originally planned).
+One persistent micro-batching server per model (`serve.py`), not one Slurm
+job per team, so GPU use doesn't grow with the number of teams.
+
+Event plan (2026-10-16): four servers on the A40 reservation node, one per
+GPU: `conch`, `musk`, `openclip:wisdomik/QuiltNet-B-32`, `hfclip:vinid/plip`.
+Students get endpoints via #compute-issues and call them from inside Delta
+only. Compute nodes aren't reachable from outside; gpub080's ports timed out
+from off-cluster.
+
+**No shared copy of CONCH or MUSK weights.** Both licenses forbid
+redistribution, and CONCH requires each user to register individually. That
+is why students are told to get their own HF access before using those
+endpoints. Shared copies of open models (QuiltNet, PLIP) are fine; check their
+model-card licenses first.
+
+Student-facing compute details: `HACKATHON_COMPUTE.md`. It assumes the
+`/projects/bfqi` quota increase (requested 2026-10-16) and the dataset copy to
+`/projects/bfqi/shared/datasets/`; update it if either falls through.
 
 ## Before the event: checklist
 

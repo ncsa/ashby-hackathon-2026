@@ -1,119 +1,232 @@
-# Hackathon computing: Delta, Lumen, and your own machine
+# Hackathon computing: Delta, models, data, and Lumen
 
-Student-facing overview of what compute you have this weekend
-(Sat 2026-10-17 – Sun 2026-10-18, 8:30am–5:00pm) and how to get on it.
-For using the pathology embedding servers once you're on, see
-`STUDENT_GUIDE.md`.
+Student guide to the computing for the 2026 Ashby Prize Hackathon
+(Sat–Sun, Oct 17–18, 8:30am–5:00pm, with Delta access through Mon Oct 19).
+It follows the opening-session slides, with the commands written out in full.
 
-**GPU time on Delta is limited and shared by every team.** Plan to do most
-of your work on your own laptop (or Colab), use **Lumen** for LLMs, use the
-organizers' pathology servers for CONCH/MUSK/CLIP embeddings, and save Delta
-GPU jobs for the things that genuinely need one.
+Help: **#compute-issues** on Slack for Delta, OnDemand, Slurm and Lumen.
 
-## 1. Check that your Delta account exists
+**GPUs are the scarcest thing this weekend.** There are 16 reserved A100 GPUs
+for about 60 teams. Use the hosted model servers and Lumen first, run CPU jobs
+where you can, and use one GPU per team at a time for short jobs.
 
-Your Delta (NCSA) username comes from ACCESS:
+Contents:
 
-1. Log in at <https://allocations.access-ci.org>.
-2. Go to **My Projects** → the Delta project for the event → **My Username**.
-   That's your NCSA username. (Some NCSA docs tell you to look for a
-   "Resource Provider Site Usernames" table on your profile page — that table
-   isn't there in the current portal; use My Projects instead.)
+1. [Log in to Delta](#1-log-in-to-delta)
+2. [Storage](#2-storage)
+3. [Shared datasets](#3-shared-datasets)
+4. [Pathology models: CONCH, MUSK, QuiltNet, PLIP](#4-pathology-models)
+5. [GPU jobs](#5-gpu-jobs)
+6. [Embed tiles, then train a classifier](#6-embed-tiles-then-train-a-classifier)
+7. [LLMs on Lumen](#7-llms-on-lumen)
+8. [Agentic coding with opencode](#8-agentic-coding-with-opencode)
+9. [Illinois Chat and your own resources](#9-illinois-chat-and-your-own-resources)
 
-The real test is logging in:
+## 1. Log in to Delta
+
+**Find your username.** Log in at <https://allocations.access-ci.org>, go to
+**My Projects** → the hackathon's Delta project → **My Username**. (Some NCSA
+docs mention a "Resource Provider Site Usernames" table on your profile page.
+The current portal doesn't have it; use My Projects.)
+
+**SSH** from a terminal (macOS/Linux Terminal, Windows PowerShell):
 
 ```bash
 ssh <username>@login.delta.ncsa.illinois.edu
 ```
 
-You'll be asked for your NCSA password and a Duo prompt (type `1` for a
-push). Once you're in, run:
+Enter your NCSA password, then answer Duo (type `1` for a push). You land on a
+**login node**: edit files, install packages, submit jobs. Don't run anything
+heavy there.
+
+**Or use Open OnDemand** in a browser: <https://openondemand.delta.ncsa.illinois.edu>.
+This is the easiest start if you haven't used a cluster before. It has a file
+browser, a shell, and apps like Jupyter and Code Server. For a CPU session,
+use account `bfqi-delta-cpu`, partition `cpu-interactive`, duration
+`00-01:00:00`.
+
+**Check you're on the hackathon project:**
 
 ```bash
-accounts
+accounts   # should list bfqi-delta-cpu and bfqi-delta-gpu
+quota      # your storage use and limits
 ```
 
-You should see **`bfqi-delta-gpu`** in the list. If you can't log in, or
-`bfqi-delta-gpu` isn't listed, find a TA — don't wait until you need a GPU.
+If either account is missing, post in #compute-issues.
 
-## 2. GPU jobs on Delta
+## 2. Storage
 
-There is a set of A100 nodes reserved for students during the event, under
-the `bfqi-delta-gpu` account. The reservation is *magnetic*: you don't need
-to name it, any `bfqi-delta-gpu` job on `gpuA100x4` that fits gets pulled
-onto those nodes automatically.
+| Where | Use it for |
+|---|---|
+| `/u/<username>` (home, 100 GB) | Code, environments, small files |
+| `/projects/bfqi/<username>` | Your data and outputs |
+| `/projects/bfqi/teams/<team>` | Files your team shares, e.g. embeddings computed once and reused. Create it with `mkdir -p /projects/bfqi/teams/<team>` |
+| `/projects/bfqi/shared/` | Read-only datasets |
 
-Interactive (for debugging — release it when you're done):
+Avoid `/work` this weekend: `/work/hdd` is having filesystem problems. If a
+write fails with `Disk quota exceeded`, use your home directory and tell us in
+#compute-issues.
+
+Everyone in the hackathon can read `/projects/bfqi`, so don't put anything
+private there.
+
+## 3. Shared datasets
+
+Read these in place; don't copy them.
+
+```
+/projects/bfqi/shared/datasets/
+    NCT-CRC-HE-100K/data-samples/   # CRC: 100k .tif tiles, one folder per class (9)
+    quilt/                          # Quilt-1M: .jpg images + quilt_1M_lookup CSV of captions
+    pathgen_dataset/                # PathGen-1.6M: JSON captions + a 2k-slide sample
+    pathmmu/                        # PathMMU: ARCH, BACH, MHIST, NCT-CRC, Osteo folders
+```
+
+These are already tiles and captions, so no slide preprocessing is needed. If
+the path changes, it'll be posted in #compute-issues.
+
+## 4. Pathology models
+
+| Model | Name to pass to our scripts | Access |
+|---|---|---|
+| CONCH | `conch` | Gated: get your own access first |
+| MUSK | `musk` | Gated: get your own access first |
+| QuiltNet-B-32 | `openclip:wisdomik/QuiltNet-B-32` | Open |
+| PLIP | `hfclip:vinid/plip` | Open |
+
+**CONCH and MUSK: everyone needs their own access.** Their licenses forbid
+sharing copies, and CONCH's says each person must register individually.
+That also applies to using them through the hosted servers.
+
+1. Request access on <https://huggingface.co/MahmoodLab/CONCH> and
+   <https://huggingface.co/xiangjx/musk>. Use your .edu email; approval is
+   usually fast.
+2. Create a Hugging Face token (Settings → Access Tokens), then on Delta run
+   `huggingface-cli login` and paste it.
+3. The weights download to your home directory the first time you use them.
+
+**Two ways to use the models:**
+
+- **Hosted servers (no GPU job needed).** The organizers run all four models,
+  one endpoint each, on a reserved A40 node. Host, port and API key are posted
+  in #compute-issues. Call them from **inside Delta** (login node, OnDemand,
+  or a job), not from your laptop. See [`STUDENT_GUIDE.md`](STUDENT_GUIDE.md).
+  The servers run until **Sun 6:00pm**.
+- **Your own GPU job.** Load the model yourself, as in section 6.
+
+## 5. GPU jobs
+
+The reserved A100 nodes are on `bfqi-delta-gpu`, partition `gpuA100x4`. You
+don't need a `--reservation` flag: event jobs go to the reserved nodes
+automatically.
+
+Interactive, for debugging (release it when you're done):
 
 ```bash
 srun --account=bfqi-delta-gpu --partition=gpuA100x4 --gpus-per-node=1 \
      --cpus-per-task=16 --mem=32G --time=01:00:00 --pty bash
 ```
 
-Batch:
+Rules:
+
+- **One GPU per team at a time.**
+- **Keep jobs to an hour or two.** The reserved nodes run Sat 7:30am to
+  Sun 6:00pm, in two blocks: **Sat 7:30am – Sun 7:59am** and
+  **Sun 8:00am – 6:00pm**. A job whose time limit crosses Sun 8:00am or
+  6:00pm can't use the reserved nodes and waits in the regular queue, which
+  this weekend means days. If you leave a job running Saturday night, make sure
+  it finishes by 7:59am Sunday.
+- **Nothing heavy on the login node.**
+- `squeue -u $USER` lists your jobs, and `scancel <jobid>` ends one. End idle
+  Jupyter or interactive sessions; they keep holding a GPU.
+- After Sun 6:00pm there are no reserved nodes, and GPU jobs go through the
+  normal (slow) queue.
+
+## 6. Embed tiles, then train a classifier
+
+One-time setup on the login node:
 
 ```bash
-sbatch --account=bfqi-delta-gpu --partition=gpuA100x4 --gpus-per-node=1 \
-       --time=02:00:00 my_job.sbatch
+git clone https://github.com/ncsa/ashby-hackathon-2026.git
+cd ashby-hackathon-2026
+module load pytorch-conda/2.8
+pip install --user "open_clip_torch>=2.24"
+# only if you'll run CONCH or MUSK yourself:
+pip install --user git+https://github.com/mahmoodlab/CONCH.git
+pip install --user git+https://github.com/lilab-stanford/MUSK.git
 ```
 
-Rules of thumb:
-
-- **One GPU per team at a time** unless a TA says otherwise. There are 16
-  GPUs for the whole event.
-- **Keep `--time` short** (an hour or two). The reserved nodes run from Sat
-  7:30am to Sun 6:00pm, including overnight, but a job must fit in one of two
-  blocks: **Sat 7:30am – Sun 7:59am** and **Sun 8:00am – 6:00pm**. A job whose
-  time limit crosses Sun 8:00am or 6:00pm won't go on the reserved nodes and
-  will wait in the regular Delta queue (which can mean days). This mostly
-  matters for jobs you leave running overnight on Saturday: make sure they
-  finish by 7:59am Sunday.
-- **Never run training or inference on the login node** — that's what `srun`
-  is for. `pip install`, editing, and sending HTTP requests are fine there.
-- `squeue -u $USER` shows your jobs; `scancel <jobid>` ends one. Cancel idle
-  interactive sessions — they hold a GPU even if you aren't using it.
-
-## 3. Shared datasets and where to save files
-
-Read-only copies of Quilt-1M, PathMMU, NCT-CRC-HE-100K and PathGen will be
-on Delta. **The path will be posted in the event channel and at the 8:30
-briefing.** Read them in place; don't copy them into your own space.
-
-Where to write your own files: **your home directory** (`~`, 100 GB and
-750k files per person) for code, outputs, and environments. Check usage with
-`quota`.
-
-Don't write to `/projects/bfqi` (that project space is full, so writes will
-fail) or `/work` (`/work/hdd` is having filesystem problems this weekend).
-Big intermediate files (e.g. embeddings for millions of tiles) should stay
-on your laptop or be computed on the fly.
-
-## 4. LLMs: Lumen
-
-Lumen (<https://lumen.ncsa.illinois.edu>) hosts a range of open-weight LLMs
-(coding models, general chat models) with an OpenAI-compatible API. Event
-participants have been added to it.
-
-**Get an API key:**
-
-1. Log in at <https://lumen.ncsa.illinois.edu>.
-2. Open your **Profile**.
-3. Click **+ New API Key**, give it a name, and **copy the key immediately**
-   — it's only shown once. It starts with `sk_`.
-
-Your Profile page also shows your **coin** balance. Every request costs
-coins; the organizers will top balances up during the event, but if you see
-"budget exhausted" errors, tell a TA.
-
-**Check it works** (from anywhere with internet — laptop or Delta):
+**Embed a folder of tiles** (GPU batch job, 1 hour). Run it from inside the
+`ashby-hackathon-2026` folder, where its logs go:
 
 ```bash
-export LUMEN_API_KEY=sk_...        # your key
+# sbatch ... submit.sbatch <tiles dir> <output csv> <model>
+sbatch --account=bfqi-delta-gpu submit.sbatch \
+    /projects/bfqi/shared/datasets/NCT-CRC-HE-100K/data-samples/TUM \
+    tum_embeddings.csv openclip:wisdomik/QuiltNet-B-32
+```
+
+This writes one row per tile (`image_path`, `embedding`). The script reads
+folders recursively, and rerunning the same command resumes where it stopped.
+Logs go to `logs/<jobid>.out`. Pass a JSON file of `{label: prompt}` as a 4th
+argument to get zero-shot predictions instead of embeddings; `prompts.json` is
+an example.
+
+**Train a classifier on the embeddings.** This runs in seconds on CPU, so you
+don't need a GPU:
+
+```bash
+python train_probe.py embeddings.csv                      # label = tile's folder name
+python train_probe.py embeddings.csv --labels labels.csv  # your own labels
+```
+
+`labels.csv` has columns `image_path,label`. Add a `group` column (a patient
+or slide ID) to split by patient, so tiles from one patient never end up in
+both train and test. CRC-100K has no patient IDs, so its random split
+overstates accuracy. To run it as a CPU batch job, use
+`--account=bfqi-delta-cpu --partition=cpu`.
+
+## 7. LLMs on Lumen
+
+[Lumen](https://lumen.ncsa.illinois.edu) is NCSA's gateway to open-weight
+LLMs: coding models and general chat models, in a browser chat or through an
+OpenAI-compatible API. Help pages are at <https://lumen.ncsa.illinois.edu/help/>.
+
+**Log in** with your NCSA ID. Hackathon participants are on Lumen's access
+list; if you can't get in, post in #compute-issues.
+
+**Coins.** Each request costs coins, and bigger models cost more. You start
+with 10, and your balance slowly refills every hour. Your **Profile** page
+shows your balance. If you run out, post in #compute-issues and an organizer
+will top you up.
+
+**Model access.** The *Model Access* table on your Profile lists every model.
+A model marked **Need Consent** requires a one-time click to accept its terms
+before you can use it.
+
+**Get an API key** (one key works for every model):
+
+1. Open your **Profile**.
+2. Click **+ New API Key** and **copy the key right away**. It's shown only
+   once and starts with `sk_`.
+3. Give it a name and click **Save Key**.
+
+Keep it in an environment variable, not in your code:
+
+```bash
+export LUMEN_API_KEY=sk_...       # add to ~/.bashrc to keep it across logins
+```
+
+**Check it works and list the models.** This works from your laptop or Delta:
+
+```bash
 curl https://lumen.ncsa.illinois.edu/v1/models \
      -H "Authorization: Bearer $LUMEN_API_KEY"
 ```
 
-That lists the model IDs you can use.
+Model IDs available as of Oct 16 include `qwen3-coder-next`, `glm-5.3`,
+`gemma-4-31b-it` and `nemotron-3-super-120b-a12b`; the call above has the
+current list.
 
 **From Python** (`pip install openai`):
 
@@ -130,9 +243,24 @@ reply = client.chat.completions.create(
 print(reply.choices[0].message.content)
 ```
 
-**As a coding agent in opencode**: put this in
-`~/.config/opencode/opencode.json` and keep `LUMEN_API_KEY` exported in your
-shell. Swap in any model IDs from `/v1/models`.
+Any tool that speaks the OpenAI API works the same way: set the base URL to
+`https://lumen.ncsa.illinois.edu/v1` and use your key.
+
+**If you leak a key** (committed it, pasted it in Slack), delete it on your
+Profile page and make a new one. Deleting it takes effect immediately.
+
+## 8. Agentic coding with opencode
+
+[opencode](https://opencode.ai) is an open-source coding agent for the
+terminal. Pointed at Lumen, it runs on university-hosted models at no cost to
+you. Install it in your home directory on Delta, so the agent works next to
+your data and jobs (or on your laptop):
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+Then create `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -155,13 +283,19 @@ shell. Swap in any model IDs from `/v1/models`.
 }
 ```
 
-**Never paste your API key into code you commit or share.** Read it from an
-environment variable as above. If a key leaks, delete it on your Profile page
-and make a new one.
+With `LUMEN_API_KEY` exported, run `opencode` in your project folder.
+`opencode models` should list the Lumen models. Add more from `/v1/models` in
+the same format.
 
-## 5. Your own resources
+Read what the agent writes before you run it, especially anything that
+submits GPU jobs.
 
-Lumen works from any laptop. The pathology embedding servers run on a Delta
-compute node, so call them from inside Delta (login node, OnDemand, or a
-Slurm job), then copy the embeddings to your laptop if you like. For your own GPU work beyond what Delta can give you, Google Colab or
-your own lab/cloud resources are fair game.
+## 9. Illinois Chat and your own resources
+
+- **Illinois Chat** (<https://chat.illinois.edu>), free with your NetID. Ask
+  about papers, models and code; the hackathon's pathology space is
+  <https://chat.illinois.edu/multimodal-pathology/chat>.
+- **Your laptop** works for Lumen, Illinois Chat, and anything that uses
+  embeddings you've copied off Delta. The hosted pathology servers need Delta.
+- **Google Colab, or your own lab or cloud GPUs**, are fine for extra GPU
+  work.
