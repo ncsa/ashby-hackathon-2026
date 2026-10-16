@@ -70,6 +70,7 @@ submit it as a batch job with `submit.sbatch` / `submit_serve.sbatch` instead.
 
    ```bash
    module load pytorch-conda/2.8
+   unset PYTHONNOUSERSITE   # the module sets it, hiding --user installs
    pip install --user "open_clip_torch>=2.24"
    ```
 

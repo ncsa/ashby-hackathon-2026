@@ -78,7 +78,10 @@ mkdir -p logs
 # everything in requirements.txt except open_clip_torch -- one-time
 # `pip install --user "open_clip_torch>=2.24"` after loading the module
 # covers that. See README.md § Setup.
+# The module sets PYTHONNOUSERSITE=1, which hides `pip install --user`
+# packages (open_clip, conch, musk) from Python; unset it so they load.
 module load pytorch-conda/2.8
+unset PYTHONNOUSERSITE
 # --- or, without that module ---
 # source /path/to/venv/bin/activate
 

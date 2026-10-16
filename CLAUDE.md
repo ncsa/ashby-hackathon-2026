@@ -34,11 +34,12 @@ Student-facing compute details: `HACKATHON_COMPUTE.md`. It assumes the
 1. **Get `HF_TOKEN`** and accept the license on each gated model's HF page
    (CONCH, MUSK — see README.md § Setup). Not needed for the generic
    OpenCLIP/CLIP adapters unless the specific repo is gated.
-2. **Install deps** on the login node (network access, fine there). Verified
-   2026-09-17: `module load pytorch-conda/2.8` covers everything except
-   `open_clip_torch` (`pip install --user "open_clip_torch>=2.24"` after
-   loading it) — see README.md § Setup. `submit.sbatch`/`submit_serve.sbatch`
-   already load this module.
+2. **Install deps** on the login node (network access, fine there).
+   `module load pytorch-conda/2.8` covers everything except `open_clip_torch`
+   and the CONCH/MUSK packages, which go in with `pip install --user`. As of
+   2026-10-16 the module sets `PYTHONNOUSERSITE=1`, which hides `--user`
+   installs, so `unset PYTHONNOUSERSITE` right after loading it.
+   `submit.sbatch`/`submit_serve.sbatch` load the module and unset it.
 3. **Dry-run the serving infra without a GPU or gated access**, using the
    dependency-free `test` adapter, from the login node (HTTP only, no model
    load):

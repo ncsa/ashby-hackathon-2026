@@ -151,11 +151,17 @@ One-time setup on the login node:
 git clone https://github.com/ncsa/ashby-hackathon-2026.git
 cd ashby-hackathon-2026
 module load pytorch-conda/2.8
+unset PYTHONNOUSERSITE   # needed after every module load, or --user packages are invisible
 pip install --user "open_clip_torch>=2.24"
 # only if you'll run CONCH or MUSK yourself:
 pip install --user git+https://github.com/mahmoodlab/CONCH.git
 pip install --user git+https://github.com/lilab-stanford/MUSK.git
 ```
+
+Put `unset PYTHONNOUSERSITE` right after `module load pytorch-conda/2.8` in
+your own scripts and notebooks too: the module sets that variable, and without
+it Python ignores everything you installed with `pip install --user`. Our
+`submit.sbatch` already does it.
 
 **Embed a folder of tiles** (GPU batch job, 1 hour). Run it from inside the
 `ashby-hackathon-2026` folder, where its logs go:
