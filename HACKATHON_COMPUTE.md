@@ -307,7 +307,7 @@ model.
   anything, which is a better fit if you're new to Delta.
 - **Don't let the agent submit GPU jobs unattended**, and never let it set up
   scripts that resubmit jobs in a loop. Every GPU job counts against your
-  10-hour budget. Read any `sbatch`/`srun` command before approving it.
+  personal GPU-hour budget. Read any `sbatch`/`srun` command before approving it.
 - **Never paste passwords, API keys or tokens** into a chat. Anything you
   paste is sent to the model.
 - Agents make confident mistakes. Run their code on a few tiles first, and
