@@ -1,0 +1,11 @@
+{
+  "ADI": "an H&E image of adipose tissue",
+  "BACK": "an H&E image of background with no tissue",
+  "DEB": "an H&E image of debris and necrosis",
+  "LYM": "an H&E image of lymphocytes",
+  "MUC": "an H&E image of mucus",
+  "MUS": "an H&E image of smooth muscle",
+  "NORM": "an H&E image of normal colon mucosa",
+  "STR": "an H&E image of cancer-associated stroma",
+  "TUM": "an H&E image of colorectal adenocarcinoma epithelium"
+}
