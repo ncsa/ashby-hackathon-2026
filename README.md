@@ -1,20 +1,24 @@
-# CONCH / MUSK Pathology Embeddings (standalone)
+# 2026 Ashby Prize Hackathon: pathology model tooling
 
-Tooling for running the CONCH and MUSK computational-pathology foundation
-models on Delta, for the pathology track of the hackathon.
+Tooling for serving and running the CONCH, MUSK and other CLIP-style
+computational-pathology models on NCSA Delta, for the 2026 Ashby Prize in
+Computational Science Hackathon (Oct 17-18, 2026).
 
-## Why this isn't part of the LLMFlux package
+**Students, start here:**
 
-LLMFlux's entire pipeline — `llmflux serve`/`llmflux run`, `LLMClient`,
-`BatchProcessor`, the JSONL schema — assumes an OpenAI-compatible
-`/v1/chat/completions` server backed by vLLM or Ollama. CONCH and MUSK are not
-chat models: they're dual image/text encoders (CLIP-style) used to produce
-embeddings for zero-shot classification and retrieval, and neither is served
-by vLLM or Ollama. So this directory is a plain, self-contained script run
-directly on a compute node — no LLMFlux engine, converter, or output-handler
-code involved. It's kept in this repo only for discoverability alongside the
-other hackathon prep (see #129, #131, #134), not because it depends on the
-`llmflux` package.
+- [`HACKATHON_COMPUTE.md`](HACKATHON_COMPUTE.md) — getting on Delta, GPU job
+  rules, storage, and LLM access through Lumen.
+- [`STUDENT_GUIDE.md`](STUDENT_GUIDE.md) — calling the hosted pathology
+  embedding servers (`/embed`, `/classify`).
+
+The rest of this README is for organizers setting up the servers.
+`CLAUDE.md` is the TA runbook.
+
+These models are dual image/text encoders (CLIP-style) used for embeddings,
+zero-shot classification and retrieval. They aren't chat models and aren't
+served by vLLM or Ollama, so this is a small standalone FastAPI server and
+batch script rather than part of [LLMFlux](https://github.com/Center-for-AI-Innovation/LLMFlux),
+where it was first developed.
 
 ## Never run this on the login node
 

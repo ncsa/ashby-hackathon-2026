@@ -2,13 +2,10 @@
 
 Context for whoever is running the pathology track at the hackathon (TA-facing
 — not for students, see `STUDENT_GUIDE.md` for that) and for Claude when
-asked to help operate this during the event. This directory is standalone
-(no `llmflux` package code, no tests run by the main `python -m pytest` suite
-— see `README.md`'s "Why this isn't part of the LLMFlux package"), and as of
-this writing lives only on the `pathology-hackathon-tooling` branch with no
-PR open — it may just get run directly off this branch during the event
-rather than merged first. Check `git log --oneline -5` in this directory if
-that assumption is stale.
+asked to help operate this during the event. Lives in
+`ncsa/ashby-hackathon-2026` (split out of LLMFlux's `pathology-hackathon-tooling`
+branch on 2026-10-16, history preserved). Run the tests with
+`python -m pytest`.
 
 ## The plan this exists for
 
