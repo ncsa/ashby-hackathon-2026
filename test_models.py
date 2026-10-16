@@ -14,6 +14,7 @@ lazily inside the functions that need them.
 
 import os
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -171,6 +172,31 @@ class TestBespokeAdapterImportErrors(unittest.TestCase):
                 models.load_conch(device="cpu")
         self.assertIn("conch", str(ctx.exception))
         self.assertIn("pip install git+", str(ctx.exception))
+
+
+class TestMuskTokenizerPath(unittest.TestCase):
+    def test_prefers_tokenizer_inside_package(self):
+        with tempfile.TemporaryDirectory() as pkg:
+            os.makedirs(os.path.join(pkg, "models"))
+            path = os.path.join(pkg, "models", "tokenizer.spm")
+            open(path, "w").close()
+            self.assertEqual(models._musk_tokenizer_path(pkg), path)
+
+    def test_falls_back_to_hf_repo_when_pip_install_omits_it(self):
+        fake_hub = mock.MagicMock()
+        fake_hub.hf_hub_download.return_value = "/cache/tokenizer.spm"
+        with tempfile.TemporaryDirectory() as pkg, mock.patch.dict(sys.modules, {"huggingface_hub": fake_hub}):
+            self.assertEqual(models._musk_tokenizer_path(pkg, "tok"), "/cache/tokenizer.spm")
+        fake_hub.hf_hub_download.assert_called_once_with(repo_id="xiangjx/musk", filename="tokenizer.spm", token="tok")
+
+    def test_failed_fallback_explains_access(self):
+        fake_hub = mock.MagicMock()
+        fake_hub.hf_hub_download.side_effect = OSError("401 gated")
+        with tempfile.TemporaryDirectory() as pkg, mock.patch.dict(sys.modules, {"huggingface_hub": fake_hub}):
+            with self.assertRaises(RuntimeError) as ctx:
+                models._musk_tokenizer_path(pkg)
+        self.assertIn("401 gated", str(ctx.exception))
+        self.assertIn("hf auth login", str(ctx.exception))
 
 
 class TestLoadHfClip(unittest.TestCase):

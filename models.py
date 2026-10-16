@@ -70,6 +70,28 @@ def load_conch(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     return Adapter(name="conch", preprocess=preprocess, encode_images=encode_images, encode_texts=encode_texts)
 
 
+def _musk_tokenizer_path(package_dir: str, hf_token: Optional[str] = None) -> str:
+    """Find MUSK's tokenizer.spm.
+
+    A git checkout has it at musk/models/tokenizer.spm, but `pip install
+    git+...MUSK.git` installs only the Python files, so fall back to the copy
+    in the xiangjx/musk Hugging Face repo (downloaded with the weights).
+    """
+    local = os.path.join(package_dir, "models", "tokenizer.spm")
+    if os.path.exists(local):
+        return local
+    from huggingface_hub import hf_hub_download
+
+    try:
+        return hf_hub_download(repo_id="xiangjx/musk", filename="tokenizer.spm", token=hf_token)
+    except Exception as e:
+        raise RuntimeError(
+            f"Could not find MUSK's tokenizer.spm: not at {local}, and downloading it from "
+            f"huggingface.co/xiangjx/musk failed ({e}). Check that your HF access to MUSK "
+            "is approved and that you've run `hf auth login`."
+        ) from e
+
+
 def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     """Load MUSK. Requires accepted access to huggingface.co/xiangjx/musk and
     `pip install git+https://github.com/lilab-stanford/MUSK.git fairscale`
@@ -97,12 +119,7 @@ def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     # (e.g. local smoke testing) stays fp32 since fp16 ops are slow/unsupported there.
     dtype = torch.float16 if device.startswith("cuda") else torch.float32
 
-    tokenizer_path = os.path.join(os.path.dirname(musk.__file__), "models", "tokenizer.spm")
-    if not os.path.exists(tokenizer_path):
-        raise RuntimeError(
-            f"Could not find MUSK's tokenizer.spm at {tokenizer_path}. Check "
-            f"{MUSK_REPO} for where it's currently packaged."
-        )
+    tokenizer_path = _musk_tokenizer_path(os.path.dirname(musk.__file__), hf_token)
 
     try:
         model = timm.create_model("musk_large_patch16_384")
