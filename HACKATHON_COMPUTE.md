@@ -143,6 +143,8 @@ Rules:
   request is rejected with `QOSMaxSubmitJobPerUserLimit`; end the first one.
 - `squeue -u $USER` lists your jobs, and `scancel <jobid>` ends one. End idle
   Jupyter or interactive sessions; they keep holding a GPU.
+- **Don't use DeltaAI** (`bfqi-dtai-gh` in `accounts`). The project has only
+  a few dozen hours there, kept as an organizer backup.
 - After Sun 6:00pm there are no reserved nodes, and GPU jobs go through the
   normal (slow) queue.
 
