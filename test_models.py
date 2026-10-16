@@ -199,6 +199,18 @@ class TestMuskTokenizerPath(unittest.TestCase):
         self.assertIn("hf auth login", str(ctx.exception))
 
 
+class TestMuskWeightsPath(unittest.TestCase):
+    def test_resolves_through_hf_cache_not_musk_force_download(self):
+        fake_hub = mock.MagicMock()
+        fake_hub.hf_hub_download.return_value = "/cache/model.safetensors"
+        with mock.patch.dict(sys.modules, {"huggingface_hub": fake_hub}):
+            self.assertEqual(models._musk_weights_path("tok"), "/cache/model.safetensors")
+        _, kwargs = fake_hub.hf_hub_download.call_args
+        self.assertEqual(kwargs["repo_id"], "xiangjx/musk")
+        self.assertEqual(kwargs["filename"], "model.safetensors")
+        self.assertNotIn("force_download", kwargs)
+
+
 class TestLoadHfClip(unittest.TestCase):
     def test_loads_via_clip_model_and_processor(self):
         fake_transformers = _fake_transformers()

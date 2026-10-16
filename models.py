@@ -92,6 +92,19 @@ def _musk_tokenizer_path(package_dir: str, hf_token: Optional[str] = None) -> st
         ) from e
 
 
+def _musk_weights_path(hf_token: Optional[str] = None) -> str:
+    """Resolve MUSK's model.safetensors through the normal HF cache.
+
+    MUSK's own `load_model_and_may_interpolate("hf_hub:...")` downloads with
+    force_download=True into a generically named ~/.cache/model.safetensors:
+    a 3.7 GB re-download whenever that file is absent, and an error under
+    HF_HUB_OFFLINE=1. A local path skips all of that.
+    """
+    from huggingface_hub import hf_hub_download
+
+    return hf_hub_download(repo_id="xiangjx/musk", filename="model.safetensors", token=hf_token)
+
+
 def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
     """Load MUSK. Requires accepted access to huggingface.co/xiangjx/musk and
     `pip install git+https://github.com/lilab-stanford/MUSK.git fairscale`
@@ -123,7 +136,7 @@ def load_musk(device: str = "cuda", hf_token: Optional[str] = None) -> Adapter:
 
     try:
         model = timm.create_model("musk_large_patch16_384")
-        musk_utils.load_model_and_may_interpolate("hf_hub:xiangjx/musk", model, "model|module", "")
+        musk_utils.load_model_and_may_interpolate(_musk_weights_path(hf_token), model, "model|module", "")
         model = model.to(device=device, dtype=dtype).eval()
         tokenizer = XLMRobertaTokenizer(tokenizer_path)
     except Exception as e:
