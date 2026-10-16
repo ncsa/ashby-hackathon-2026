@@ -65,10 +65,14 @@ once — that's why this is one persistent micro-batching server per model
    | `sup-30434-17` | students | `gpuA100x4` | 4 | Sat 07:30 → Sun 07:59 | see below | yes |
    | `sup-30434-18` | students | `gpuA100x4` | 4 | Sun 08:00 → Sun 18:00 | see below | yes |
 
-   As created, both student reservations had `accounts=bhws-delta-gpu`
-   (4 users, not the students), not `bfqi-delta-gpu`. Confirm with
-   `scontrol show res sup-30434-17` that this has been corrected before
-   telling students to use them.
+   All three are on `bfqi-delta-gpu` (Brett fixed the student ones on
+   2026-10-16; they were first created on `bhws-delta-gpu`). Checked by
+   submitting 1-minute jobs: all three pend with reason `(Reservation)`,
+   including a job with no `--reservation` flag (magnetic). `sbatch
+   --test-only` is NOT a reliable check here. It gave start estimates days
+   out, on nodes outside the reservation. Since jobs pend until the
+   reservation opens, the serve jobs can be submitted the night before and
+   start at 07:30 on their own.
 
    The serve window (34.5h) is under the 48h cap, so the auto-resubmit chain
    isn't needed: `touch ~/.pathology/serve/STOP_CHAIN-<job-name>` *before*
