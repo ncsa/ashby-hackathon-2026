@@ -128,9 +128,14 @@ than a single word.
     clf = LogisticRegression(max_iter=1000).fit(embeddings, your_labels)
     ```
 
-Both endpoints accept a list of images in one request — send your whole batch
-at once rather than looping one image per call; it's faster and is exactly
-what the server's micro-batching is built to take advantage of.
+Both endpoints accept a list of images in one request. Send them in chunks of
+**up to 64 images per request** rather than one image per call (slow) or your
+whole dataset at once: the server holds every image in a request in memory
+before processing it, and very large requests can crash it for everyone.
+For thousands of tiles, loop over chunks:
+
+    for i in range(0, len(tiles), 64):
+        embeddings += embed(tiles[i:i + 64])
 
 ## 6. Troubleshooting
 

@@ -82,12 +82,23 @@ def _post(path, payload):
     return response.json()
 
 
+# The server holds every image in a request in memory, so send at most this
+# many per request; embed()/classify() split longer lists for you.
+CHUNK = 64
+
+
 def embed(images_b64):
-    return _post("/embed", {"images": images_b64})["embeddings"]
+    out = []
+    for i in range(0, len(images_b64), CHUNK):
+        out += _post("/embed", {"images": images_b64[i:i + CHUNK]})["embeddings"]
+    return out
 
 
 def classify(images_b64, prompts):
-    return _post("/classify", {"images": images_b64, "prompts": prompts})["results"]
+    out = []
+    for i in range(0, len(images_b64), CHUNK):
+        out += _post("/classify", {"images": images_b64[i:i + CHUNK], "prompts": prompts})["results"]
+    return out
 
 
 def main():

@@ -170,8 +170,12 @@ and walltime expiry), so "endpoint unreachable" and "job ended" are usually
 the same event.
 
 **Restarting one server with the same endpoint and key** (done 2026-10-17
-after the CONCH job hit `OUT_OF_MEMORY` at 14:35, ~7h in, under `--mem=32G`;
-cause not yet diagnosed):
+after the CONCH job hit `OUT_OF_MEMORY` at 14:35, ~7h in, under `--mem=32G`.
+Likely cause: very large requests. `serve.py` decodes and preprocesses every
+image in a request in host RAM before batching, with no cap on images per
+request, and handlers run concurrently; the student guide had told teams to
+"send your whole batch at once". Guide and `example_student_usage.py` now say
+≤64 per request. After the event: reject oversized requests in `serve.py`):
 
 ```bash
 API_KEY=<that server's old key> SBATCH_MEM_PER_NODE=64G \
