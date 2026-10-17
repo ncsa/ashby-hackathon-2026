@@ -39,12 +39,17 @@ run() {
 
 submit() {
     mkdir -p "$SERVE_DIR" logs
+    port="${BASE_PORT:-8000}"
     for entry in $MODELS; do
         name="${entry%%=*}"
         spec="${entry#*=}"
         run touch "$SERVE_DIR/STOP_CHAIN-$name"
+        # Distinct starting port per server: jobs that start together on one
+        # node would otherwise all pick the same free port.
         run sbatch --account="$ACCOUNT" --partition="$PARTITION" --reservation="$RESERVATION" \
-            --time="$WALLTIME" --job-name="$name" submit_serve.sbatch "$spec"
+            --time="$WALLTIME" --job-name="$name" --export="ALL,SERVE_PORT=$port" \
+            submit_serve.sbatch "$spec"
+        port=$((port + 1))
     done
 }
 

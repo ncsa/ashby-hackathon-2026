@@ -105,7 +105,11 @@ find_free_port() {
     done
     echo "$port"
 }
-PORT=$(find_free_port 8000)
+# Jobs that start at the same moment on one node all see the same free port
+# (found 2026-10-17: four servers raced for 8000 and three died), so callers
+# starting several at once give each its own SERVE_PORT; see
+# stage_event_models.sh.
+PORT=$(find_free_port "${SERVE_PORT:-8000}")
 
 CONNECTION_FILE="$CONNECTION_DIR/connection.json"
 CURRENT_FILE="$CURRENT_DIR/connection.json"

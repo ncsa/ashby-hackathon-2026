@@ -47,7 +47,15 @@ class TestStageEventModels(unittest.TestCase):
             self.assertIn("--reservation=sup-30434", call)
             self.assertIn("--time=34:25:00", call)
             self.assertIn("submit_serve.sbatch", call)
-        self.assertTrue(calls[2].endswith("--job-name=quiltnet submit_serve.sbatch openclip:wisdomik/QuiltNet-B-32"))
+        self.assertTrue(calls[2].endswith("--job-name=quiltnet --export=ALL,SERVE_PORT=8002 submit_serve.sbatch openclip:wisdomik/QuiltNet-B-32"))
+
+    def test_each_server_gets_its_own_starting_port(self):
+        # Regression: four jobs starting together on one node all chose 8000.
+        self._run("submit")
+        ports = [c.split("SERVE_PORT=")[1].split()[0] for c in self._sbatch_calls()]
+        self.assertEqual(ports, ["8000", "8001", "8002", "8003"])
+        for call in self._sbatch_calls():
+            self.assertIn("--export=ALL,SERVE_PORT=", call)
 
     def test_submit_disables_resubmit_chain_for_each_job(self):
         self._run("submit")

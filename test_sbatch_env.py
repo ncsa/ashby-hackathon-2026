@@ -32,6 +32,9 @@ class TestSbatchEnv(unittest.TestCase):
     def test_submit_serve(self):
         self._check("submit_serve.sbatch")
 
+    def test_serve_port_honours_serve_port(self):
+        self.assertIn('PORT=$(find_free_port "${SERVE_PORT:-8000}")', self._lines("submit_serve.sbatch"))
+
 
 if __name__ == "__main__":
     unittest.main()
