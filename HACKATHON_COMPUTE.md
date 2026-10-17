@@ -82,14 +82,13 @@ Read these in place; don't copy them.
     NCT-CRC-HE-100K/data-samples/   # CRC: 100k .tif tiles, one folder per class (9)
     pathgen_dataset/                # PathGen-1.6M: JSON captions + a 2k-slide sample
     pathmmu/                        # PathMMU: ARCH, BACH, MHIST, NCT-CRC, Osteo folders
-    quilt/                          # Quilt-1M subset: images_part_1..7/quilt_1m/*.jpg
-                                    #   + quilt_1M_lookup.csv (captions for all 1M)
 ```
 
 These are already tiles and captions, so no slide preprocessing is needed.
-**Quilt-1M** is a ~70% subset (7 of its 10 image folders, about 460k
-images), because of file-count limits. The caption CSV covers all 1M images,
-so filter it to the files that are present. If
+**Quilt-1M** (all ~650k images in `images_part_1` … `images_part_10`, plus
+`quilt_1M_lookup-002.csv` with the captions) is at
+`/work/nvme/bfqi/shared/datasets/quilt/`. Watch #compute-issues for when the
+copy is complete. If
 the path changes, it'll be posted in #compute-issues.
 
 ## 4. Pathology models
