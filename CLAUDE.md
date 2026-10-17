@@ -73,7 +73,7 @@ Student-facing compute details: `HACKATHON_COMPUTE.md`. It assumes the
 
    | Name | Use | Partition | Nodes | Window | Account | Magnetic |
    |---|---|---|---|---|---|---|
-   | `sup-30434` | model servers | `gpuA40x4` | 1 (gpub080, 4× A40) | Sat 07:30 → Sun 18:00 | `bfqi-delta-gpu` | no — pass `--reservation` |
+   | `sup-30434` | model servers | `gpuA40x4` | 1 (gpub055 as of Sat 07:30, 4× A40) | Sat 07:30 → Sun 18:00 | `bfqi-delta-gpu` | no — pass `--reservation` |
    | `sup-30434-17` | students | `gpuA100x4` | 4 | Sat 07:30 → Sun 07:59 | see below | yes |
    | `sup-30434-18` | students | `gpuA100x4` | 4 | Sun 08:00 → Sun 18:00 | see below | yes |
 

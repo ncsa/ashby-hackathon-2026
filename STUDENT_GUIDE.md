@@ -22,7 +22,7 @@ Four servers run on a reserved A40 node until Sun 6:00pm, one per model:
 CONCH, MUSK, QuiltNet-B-32 and PLIP. For each one, #compute-issues on Slack
 has:
 
-- **ENDPOINT**: a URL like `http://gpub080:8001`
+- **ENDPOINT**: a URL like `http://gpub055.delta.ncsa.illinois.edu:8001`
 - **API_KEY**: a token you pass as a bearer token
 
 All four servers have the same HTTP API, so the only differences are which
