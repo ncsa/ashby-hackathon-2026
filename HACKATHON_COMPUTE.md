@@ -119,6 +119,64 @@ That also applies to using them through the hosted servers.
   (section 6) so you don't block other teams.
 - **Your own GPU job.** Load the model yourself, as in section 6.
 
+### Other models worth knowing
+
+Check each model card for its licence and access steps before you start.
+Sizes assume one 40 GB A100.
+
+| Kind | Examples | How to run them here |
+|---|---|---|
+| Pathology image + text (CLIP-style) | CONCH, MUSK, QuiltNet, PLIP, PathGen-CLIP | Hosted servers, or `submit.sbatch` (`openclip:`/`hfclip:` specs cover most open ones, e.g. `openclip:ViT-B-16@jamessyx/PathGen-CLIP/pathgenclip.pt`) |
+| Pathology image-only encoders (strong for classifiers on embeddings) | UNI / UNI2, Virchow2, Phikon-v2, H-optimus-0, Prov-GigaPath | Your own GPU job with `timm` or `transformers`. Several are gated |
+| Slide-level models | TITAN, PRISM | Gated, and expect whole-slide feature pipelines; usually too big for a weekend |
+| Medical / pathology chat models | MedGemma 4B (gated), Quilt-LLaVA | MedGemma via LLMFlux (below) once you've accepted its terms; Quilt-LLaVA in your own job |
+| General vision–language models | Qwen2.5-VL-7B, InternVL2.5-8B, Llama-3.2-11B-Vision, Pixtral-12B | LLMFlux (below) |
+| Text LLMs | Many | Lumen (section 7): no GPU budget needed |
+
+**A caution about general vision–language models:** on Oct 16 we ran
+Qwen2.5-VL-7B through LLMFlux on 18 CRC tiles (2 per class), asking it to name
+the tissue type. It answered "normal mucosa" for all 18. General VLMs aren't
+trained for histology. For classifying tiles, pathology encoders (CONCH: 63%
+zero-shot, about 96% with a trained classifier on the same task) are far
+better. Use VLMs for things like describing or explaining images, and check
+the output.
+
+### Running open vision–language models with LLMFlux
+
+LLMFlux runs a batch of prompts, optionally with images, through an open
+model as a Slurm job. It's installed on Delta:
+
+```bash
+module purge && module load llmflux/2.0.0
+llmflux show-models            # model keys; vision models include
+                               # Qwen2.5-VL-7B-Instruct, InternVL2_5-8B,
+                               # Llama-3.2-11B-Vision-Instruct, medgemma-4b-it
+```
+
+1. Turn a folder of images (PNG or JPEG, not TIFF; convert `.tif` tiles first)
+   plus a prompt into a request file:
+   ```bash
+   python - <<'PY'
+   from llmflux.converters import vision_to_jsonl
+   vision_to_jsonl("my_tiles/", "requests.jsonl",
+                   prompt_template="Describe the tissue in this H&E image in one sentence.")
+   PY
+   ```
+2. Submit it (this one took about 3 minutes for 18 images, including model
+   download):
+   ```bash
+   llmflux run --model Qwen2.5-VL-7B-Instruct --engine vllm \
+       --input requests.jsonl --output results.json \
+       --account=bfqi-delta-gpu --partition=gpuA100x4 --time 00:30:00 \
+       --cpus-per-task 8 --mem 60G --max-tokens 64 --temperature 0
+   llmflux jobs                   # status; llmflux logs <jobid> if it fails
+   ```
+3. Answers are in `results.json` under `results`, in input order.
+
+Stick to models of about 14B or smaller on one GPU. Weights download into
+your home directory (a 7B model is about 16 GB), and the job counts against
+your GPU budget.
+
 ### Bringing your own models, data or tools
 
 You're free to use any model, dataset or tool, as long as you follow its
