@@ -133,13 +133,20 @@ Sizes assume one 40 GB A100.
 | General vision–language models | Qwen2.5-VL-7B, InternVL2.5-8B, Llama-3.2-11B-Vision, Pixtral-12B | LLMFlux (below) |
 | Text LLMs | Many | Lumen (section 7): no GPU budget needed |
 
-**A caution about general vision–language models:** on Oct 16 we ran
-Qwen2.5-VL-7B through LLMFlux on 18 CRC tiles (2 per class), asking it to name
-the tissue type. It answered "normal mucosa" for all 18. General VLMs aren't
-trained for histology. For classifying tiles, pathology encoders (CONCH: 63%
-zero-shot, about 96% with a trained classifier on the same task) are far
-better. Use VLMs for things like describing or explaining images, and check
-the output.
+**A caution about vision–language models for classifying tiles.** On Oct
+16–17 we asked three models, via LLMFlux, to name the tissue type of 18 CRC
+tiles (2 per class, 9 classes, so about 2 correct by chance):
+
+| Model | Correct of 18 |
+|---|---|
+| Qwen2.5-VL-7B (general) | 2: it answered "normal mucosa" every time |
+| MedGemma 4B (medical) | 4 |
+| MedGemma 1.5 4B (medical) | 6 |
+
+By comparison, CONCH and MUSK zero-shot got 63% and 77% of 450 tiles from
+the same dataset, and about 96% with a classifier trained on their
+embeddings. Use pathology encoders to classify tiles. Use vision–language
+models to describe or explain images, and check what they say.
 
 ### Running open vision–language models with LLMFlux
 
@@ -171,7 +178,26 @@ llmflux show-models            # model keys; vision models include
        --cpus-per-task 8 --mem 60G --max-tokens 64 --temperature 0
    llmflux jobs                   # status; llmflux logs <jobid> if it fails
    ```
-3. Answers are in `results.json` under `results`, in input order.
+3. Answers are in `results.json` under `results`, in the same order as the
+   request file (the request IDs aren't included, so match by position).
+
+**MedGemma** (Google's medical vision–language model) is gated: accept its
+terms on Hugging Face first, then run `hf auth login`. `medgemma-4b-it` is
+built into LLMFlux. For the newer MedGemma 1.5 4B, save this as
+`medgemma15.yaml`:
+
+```yaml
+models:
+  medgemma-1.5-4b-it:
+    hf_name: google/medgemma-1.5-4b-it
+    name: NA
+    parameters: {max_tokens: 2048, temperature: 0.7, top_p: 0.9}
+    requirements: {cpu_threads: 8, cuda_version: '>=11.8', gpu_memory_utilization: 0.9, min_gpu_memory: 8GB}
+```
+
+and add `--model medgemma-1.5-4b-it --custom-config-path medgemma15.yaml` to
+the `llmflux run` command. It tends to answer in sentences, so allow more
+than a few tokens (`--max-tokens 64`).
 
 Stick to models of about 14B or smaller on one GPU. Weights download into
 your home directory (a 7B model is about 16 GB), and the job counts against
