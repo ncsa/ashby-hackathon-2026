@@ -95,7 +95,7 @@ Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
    - `/projects/bfqi/shared/datasets/`: `NCT-CRC-HE-100K/`, `pathgen_dataset/`,
      `pathmmu/` (copied 2026-10-16).
    - `/work/nvme/bfqi/shared/datasets/quilt/`: full Quilt-1M
-     (`images_part_1` … `images_part_10` + `quilt_1M_lookup-002.csv`), Globus
+     (`images_part_1` … `images_part_10` + `quilt_1M_lookup-002.csv`). The Globus
      transfer finished ~11:00 on 2026-10-17 (653,213 images, 115 GB; it
      landed in `datasets/` and was moved into `quilt/`). Permissions checked:
      every file group-readable, none group-writable.
