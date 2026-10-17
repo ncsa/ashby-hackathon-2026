@@ -25,9 +25,8 @@ is why students are told to get their own HF access before using those
 endpoints. Shared copies of open models (QuiltNet, PLIP) are fine; check their
 model-card licenses first.
 
-Student-facing compute details: `HACKATHON_COMPUTE.md`. It assumes the
-`/projects/bfqi` quota increase (requested 2026-10-16) and the dataset copy to
-`/projects/bfqi/shared/datasets/`; update it if either falls through.
+Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
+§ 3; see checklist item 8 below).
 
 ## Before the event: checklist
 
@@ -89,24 +88,19 @@ Student-facing compute details: `HACKATHON_COMPUTE.md`. It assumes the
    The serve window (34.5h) is under the 48h cap, so the auto-resubmit chain
    isn't needed: `touch ~/.pathology/serve/STOP_CHAIN-<job-name>` *before*
    submitting so the job doesn't try to resubmit at the end of the event.
-8. **Shared read-only datasets (Quilt-1M, PathMMU, NCT-CRC-HE-100K)**: the
-   event runs entirely under `bfqi` (students included; the earlier `bhws`
-   group is not being used). As of 2026-10-16 the data is still only in
-   `/projects/bhws/shared/` (202.5 GB, ~907k files, owned by `blatti` =
-   Charles), which students can't read. **It can't be copied into
-   `/projects/bfqi`: that project is already over quota** (563.9 GB used,
-   500 GB soft / 550 GB hard, `quota` on 2026-10-16). Writes there will fail
-   for everyone, students included, so `HACKATHON_COMPUTE.md` points them at
-   their home directories only. `/work/nvme/bfqi` is nearly full too (449.9 GB
-   / 500 GB soft, 2.2M / 2.55M files), and `/work/hdd` had an OST outage
-   on 2026-10-16 (NCSA notice), so neither is usable. Options, best first:
-   (a) ask NCSA (ticket sup-30434) to grant read access in place:
-   `setfacl -m g:delta_bfqi:rx /projects/bhws` (root-owned, so only an admin
-   can do this) plus `setfacl -R -m g:delta_bfqi:rX /projects/bhws/shared`
-   (Charles can do this part himself as owner) — no copy;
-   (b) copy to `/work/hdd/bfqi/shared` only once NCSA clears the outage and
-   `lfs quota` shows room.
-   Post the final path to students and confirm a student account can `ls` it.
+8. **Shared read-only datasets**: the event runs entirely under `bfqi`
+   (students included; the earlier `bhws` group is not being used). As of
+   2026-10-17 the data is in two places, both group `delta_bfqi`, read-only
+   for students (group `r-x`, default ACL too, so new files arrive read-only):
+   - `/projects/bfqi/shared/datasets/`: `NCT-CRC-HE-100K/`, `pathgen_dataset/`,
+     `pathmmu/` (copied 2026-10-16).
+   - `/work/nvme/bfqi/shared/datasets/quilt/`: full Quilt-1M
+     (`images_part_1` … `images_part_10` + `quilt_1M_lookup-002.csv`), via a
+     Globus transfer started the morning of 2026-10-17 (`/work/nvme/bfqi` was
+     expanded to ~4.9 TB). Students are told to watch #compute-issues for
+     when it's complete.
+   Both paths are in `HACKATHON_COMPUTE.md` § 3. Once the transfer finishes,
+   confirm a student account can `ls` it, then announce it.
 
 **Open design question from the 2026-09-17 test**: is pinning the
 resubmitted job to the same node (`--nodelist` in `resubmit_chain()`,
