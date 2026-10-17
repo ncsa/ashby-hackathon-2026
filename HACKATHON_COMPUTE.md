@@ -184,15 +184,45 @@ llmflux show-models            # model keys; vision models include
 **MedGemma** (Google's medical vision–language model) is gated: accept its
 terms on Hugging Face first, then run `hf auth login`. `medgemma-4b-it` is
 built into LLMFlux. For the newer MedGemma 1.5 4B, save this as
-`medgemma15.yaml`:
+`medgemma15.yaml` (it's LLMFlux's `medgemma-4b-it` entry with the model name
+changed; this exact file was tested):
 
 ```yaml
 models:
   medgemma-1.5-4b-it:
     hf_name: google/medgemma-1.5-4b-it
     name: NA
-    parameters: {max_tokens: 2048, temperature: 0.7, top_p: 0.9}
-    requirements: {cpu_threads: 8, cuda_version: '>=11.8', gpu_memory_utilization: 0.9, min_gpu_memory: 8GB}
+    parameters:
+      max_tokens: 2048
+      stop_sequences:
+      - <|endoftext|>
+      - <|im_end|>
+      temperature: 0.7
+      top_p: 0.9
+    requirements:
+      cpu_threads: 8
+      cuda_version: '>=11.8'
+      gpu_memory_utilization: 0.9
+      min_gpu_memory: 8GB
+      recommended_gpu: A100
+    resources:
+      batch_size: 1
+      gpu_layers: 1
+      gpu_memory: 8GB
+      max_concurrent: 1
+    system:
+      prompt: You are a helpful AI assistant.
+    validation:
+      batch_size_range:
+      - 1
+      - 32
+      concurrent_range:
+      - 1
+      - 8
+      max_tokens_limit: 8192
+      temperature_range:
+      - 0.0
+      - 1.0
 ```
 
 and add `--model medgemma-1.5-4b-it --custom-config-path medgemma15.yaml` to
