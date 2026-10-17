@@ -95,12 +95,11 @@ Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
    - `/projects/bfqi/shared/datasets/`: `NCT-CRC-HE-100K/`, `pathgen_dataset/`,
      `pathmmu/` (copied 2026-10-16).
    - `/work/nvme/bfqi/shared/datasets/quilt/`: full Quilt-1M
-     (`images_part_1` … `images_part_10` + `quilt_1M_lookup-002.csv`), via a
-     Globus transfer started the morning of 2026-10-17 (`/work/nvme/bfqi` was
-     expanded to ~4.9 TB). Students are told to watch #compute-issues for
-     when it's complete.
-   Both paths are in `HACKATHON_COMPUTE.md` § 3. Once the transfer finishes,
-   confirm a student account can `ls` it, then announce it.
+     (`images_part_1` … `images_part_10` + `quilt_1M_lookup-002.csv`), Globus
+     transfer finished ~11:00 on 2026-10-17 (653,213 images, 115 GB; it
+     landed in `datasets/` and was moved into `quilt/`). Permissions checked:
+     every file group-readable, none group-writable.
+   Both paths are in `HACKATHON_COMPUTE.md` § 3.
 
 **Open design question from the 2026-09-17 test**: is pinning the
 resubmitted job to the same node (`--nodelist` in `resubmit_chain()`,

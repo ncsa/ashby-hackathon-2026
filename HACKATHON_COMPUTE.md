@@ -85,11 +85,11 @@ Read these in place; don't copy them.
 ```
 
 These are already tiles and captions, so no slide preprocessing is needed.
-**Quilt-1M** (all ~650k images in `images_part_1` … `images_part_10`, plus
-`quilt_1M_lookup-002.csv` with the captions) is at
-`/work/nvme/bfqi/shared/datasets/quilt/`. Watch #compute-issues for when the
-copy is complete. If
-the path changes, it'll be posted in #compute-issues.
+**Quilt-1M** is at `/work/nvme/bfqi/shared/datasets/quilt/` (read-only,
+115 GB): 653k images in `images_part_1/quilt_1m/` … `images_part_10/quilt_1m/`,
+plus `quilt_1M_lookup-002.csv` (2.2 GB, ~1M image–caption pairs; columns include
+`caption`, `image_path`, `pathology`, `magnification`). Load only the columns
+you need.
 
 ## 4. Pathology models
 
