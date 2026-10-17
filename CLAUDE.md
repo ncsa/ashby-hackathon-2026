@@ -169,6 +169,21 @@ SLURM job actually ended (`squeue -j <job_id>`) before assuming a bug —
 and walltime expiry), so "endpoint unreachable" and "job ended" are usually
 the same event.
 
+**Restarting one server with the same endpoint and key** (done 2026-10-17
+after the CONCH job hit `OUT_OF_MEMORY` at 14:35, ~7h in, under `--mem=32G`;
+cause not yet diagnosed):
+
+```bash
+API_KEY=<that server's old key> SBATCH_MEM_PER_NODE=64G \
+WALLTIME=<time left in the reservation, minus a margin> \
+MODELS="conch=conch" ./stage_event_models.sh submit
+```
+
+`API_KEY` carries the old key into the new job, and the server takes the
+lowest free port from its `SERVE_PORT`, so on the single reserved node it gets
+its old port back. `WALLTIME` must end before the reservation does, or the job
+never starts.
+
 ## A team wants a model you didn't stage
 
 As of `5510fa3` (generic OpenCLIP/transformers-CLIP adapters), most CLIP-style
