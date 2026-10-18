@@ -60,14 +60,14 @@ If either account is missing, post in #compute-issues.
 |---|---|
 | `/u/<username>` (home, 100 GB) | Code, environments, small files |
 | `/work/nvme/bfqi/<username>` | **Your data and outputs**: embeddings, downloads, checkpoints. Fast, with plenty of space (~4 TB shared) |
+| `/work/hdd/bfqi/<username>` | Overflow for large data (2 TB shared). Slower than `/work/nvme` |
 | `/work/nvme/bfqi/teams/<team>` | Files your team shares, e.g. embeddings computed once and reused. Create it with `mkdir -p /work/nvme/bfqi/teams/<team>` |
 | `/projects/bfqi/shared/datasets/` | Read-only datasets |
 
 `/work/nvme` isn't backed up, so keep your code in your home directory (or
 on GitHub). Model downloads from Hugging Face go to your home directory by
 default; for big models, put them on `/work/nvme` instead by adding
-`export HF_HOME=/work/nvme/bfqi/$USER/hf` to your `~/.bashrc`. Avoid `/work/hdd`, which is having filesystem problems this
-weekend. If a write fails with `Disk quota exceeded`, tell us in
+`export HF_HOME=/work/nvme/bfqi/$USER/hf` to your `~/.bashrc`. If a write fails with `Disk quota exceeded`, tell us in
 #compute-issues.
 
 Everyone in the hackathon can read `/projects/bfqi` and `/work/nvme/bfqi`, so

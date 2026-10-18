@@ -157,7 +157,9 @@ your home directory, so post the values in the event channel.
 
 Storage as of 2026-10-17 (`quota`): `/projects/bfqi` 124 GB of 500 GB soft
 (308k of 850k files); `/work/nvme/bfqi` 500 GB of 4.88 TB soft (2.3M of 10.2M
-files), so neither is near its limit.
+files), so neither is near its limit. `/work/hdd/bfqi` was opened to
+students on the night of 2026-10-17 with 2 TB (Brett), after NCSA's earlier
+"avoid /work/hdd" request; 864 GB used by Sun 08:00.
 
 The node has 4 A40s (48 GB each) and a server needs 1, so up to four models
 can run side by side on `sup-30434`, one job each with a distinct
