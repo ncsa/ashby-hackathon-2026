@@ -75,6 +75,11 @@ Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
    | `sup-30434` | model servers | `gpuA40x4` | 1 (gpub055 as of Sat 07:30, 4× A40) | Sat 07:30 → Sun 18:00 | `bfqi-delta-gpu` | no — pass `--reservation` |
    | `sup-30434-17` | students | `gpuA100x4` | 4 | Sat 07:30 → Sun 07:59 | see below | yes |
    | `sup-30434-18` | students | `gpuA100x4` | 4 | Sun 08:00 → Sun 18:00 | see below | yes |
+   | `sup-30434-cpu` | students (CPU) | `cpu` | 1 (cn004, 128 cores) | Sat 12:37 → Sun 18:00 | `bfqi-delta-cpu` | yes |
+
+   `sup-30434-cpu` was added by Brett on Saturday after CPU jobs sat behind
+   Delta's general `cpu` queue. OnDemand `cpu-interactive` sessions land on
+   cn004 too (21 of the first ~27 did).
 
    All three are on `bfqi-delta-gpu` (Brett fixed the student ones on
    2026-10-16; they were first created on `bhws-delta-gpu`). Checked by
