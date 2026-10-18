@@ -79,7 +79,7 @@ Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
 
    `sup-30434-cpu` was added by Brett on Saturday after CPU jobs sat behind
    Delta's general `cpu` queue. OnDemand `cpu-interactive` sessions land on
-   cn004 too (21 of the first ~27 did).
+   cn004 too (21 of the first 28 did).
 
    All three are on `bfqi-delta-gpu` (Brett fixed the student ones on
    2026-10-16; they were first created on `bhws-delta-gpu`). Checked by
