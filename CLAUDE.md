@@ -28,6 +28,83 @@ model-card licenses first.
 Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
 § 3; see checklist item 8 below).
 
+## Lessons from 2026: do these next time
+
+The 2026 event (Oct 17–18) went well overall. Most of what's below was
+improvised over the weekend and should be set up in advance next year.
+
+**Ask NCSA for everything in one request, about 2 weeks ahead:**
+
+1. **A CPU reservation alongside the GPU ones.** In 2026 there wasn't one at
+   first, and CPU jobs (downloads, tiling, probe training, OnDemand
+   sessions) sat in Delta's general `cpu` queue for hours until Brett added
+   `sup-30434-cpu` (1 node, cn004) at 12:37 Saturday. That node ran out of
+   **memory** before cores (250 of 258 GB allocated with only 57 of 128 cores
+   in use), so ask for 2 nodes, or a high-memory node.
+2. **Limits set before the event and announced in the first post**, not
+   worked out midway:
+   - The per-user GPU cap (2026: a QOS per student, `bfqi-delta-gpu-<user>`,
+     `GrpTRESMins=billing=600000` = 10 GPU-hours on `gpuA100x4`;
+     `*-interactive` bills 2×). Our first estimate (~5h) was wrong because
+     we calibrated it on an interactive job.
+   - Enforce "one GPU per team" with `MaxTRESPerUser=gres/gpu=1` on the QOS
+     rather than asking nicely. Several students ran 2–3 GPU jobs at once.
+   - A per-user cap on concurrent CPU jobs or memory. One student queued 8
+     jobs of 32–48 GB and blocked the CPU node for everyone else.
+   - Decide the cap from the budget. 2026 started with 5,083 GPU-hours, and
+     3,914 were still left on Sunday morning. The reserved A100s were mostly
+     idle (2–5 of 16 GPUs in use), while a few heavy users hit the cap. A
+     20–30 hour cap would have been safe. Check with the PI whether the
+     leftover allocation is earmarked for after the event before raising it.
+3. **Storage set up and checked a week ahead**: quota room on `/projects`
+   and `/work/nvme` (2026: `/projects/bfqi` was over quota two days out,
+   `/work/hdd` had an outage, `/work/nvme` was expanded to ~4.9 TB on the
+   morning of the event, and `/work/hdd` opened with 2 TB Saturday night).
+
+**Accounts.** Get the final roster at least a week ahead, then check every
+username with `id <user>` on Delta (it must exist and list `delta_bfqi`).
+In 2026, 12 of 13 late additions had no Delta account on Saturday, so
+password resets silently sent nothing. A user being on the ACCESS allocation
+doesn't mean their Delta account exists.
+
+**Data.** Stage every shared dataset before the event, read-only for the
+group (`chmod g-w` plus a default ACL `d:g::rx`), and post the final paths
+in the first message. In 2026, Quilt-1M arrived Saturday ~11:00 via Globus,
+and it landed in `datasets/` rather than `datasets/quilt/` (check where a
+transfer actually wrote). Make the event page match what's actually staged:
+it implied TCGA slides were preloaded, and they weren't. Create
+`/work/nvme/bfqi/teams/` yourself, with a read-only README, before students
+arrive. In 2026 the first student to run `mkdir -p` owned it.
+
+**Model servers.**
+- Give each server `--mem=64G`. With 32G, CONCH was OOM-killed after 7h
+  (see "Restarting one server" below). Peaks under normal traffic were
+  1.5–9.7 GB, so it was large requests, not a leak.
+- Before next year, add a limit on images per request in `serve.py` (return 413
+  over ~64), and access logging, so a crash can be traced to its cause.
+  The student guide now says ≤64 per request.
+- Set server walltimes to end exactly when the reservation does: in 2026
+  three servers stopped at 17:42, 18 minutes early.
+- Usage, for sizing: by Sunday 14:00, MUSK had ~44k requests, CONCH ~9.4k,
+  PLIP ~7k and QuiltNet ~6.2k. MUSK and CONCH were the ones that mattered.
+
+**Login nodes.** On Saturday afternoon all four Delta login nodes degraded
+(hundreds of processes stuck in D state, ~2-minute logins), and NCSA
+rebooted them one by one. Have fallback guidance ready: point students at a
+specific healthy `dt-login0N.delta.ncsa.illinois.edu`. OnDemand's "Shell
+Access" goes through the login nodes too. Only Interactive Apps (Code
+Server, Jupyter) run on compute nodes.
+
+**Supporting students.** Useful queries during the event:
+`scontrol show assoc_mgr flags=qos` (each student's GPU-cap usage, including
+running jobs), `squeue -R <reservation>`, and `sacct -a -A <account> -S
+<time> -X` grouped by user and state (fast repeated failures mean someone is
+stuck). Student logs live in home directories, which TAs can't read, so ask
+students for the error text. Common problems: MUSK's extra dependencies,
+`command not found` (exit 127) from a missing `module load`, and long jobs
+that fail at the end. Suggest testing the end of a pipeline on a small
+subset first.
+
 ## Before the event: checklist
 
 1. **Get `HF_TOKEN`** and accept the license on each gated model's HF page
@@ -81,7 +158,7 @@ Student-facing compute details: `HACKATHON_COMPUTE.md` (dataset paths in
    Delta's general `cpu` queue. OnDemand `cpu-interactive` sessions land on
    cn004 too (21 of the first 28 did).
 
-   All three are on `bfqi-delta-gpu` (Brett fixed the student ones on
+   The three GPU ones are on `bfqi-delta-gpu` (Brett fixed the student ones on
    2026-10-16; they were first created on `bhws-delta-gpu`). Checked by
    submitting 1-minute jobs: all three pend with reason `(Reservation)`,
    including a job with no `--reservation` flag (magnetic). `sbatch
